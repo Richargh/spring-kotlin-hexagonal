@@ -3,13 +3,11 @@ package de.richargh.springkotlinhexagonal
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory
 import org.springframework.context.support.beans
 import org.springframework.http.MediaType
+import org.springframework.http.MediaType.TEXT_HTML
 import org.springframework.web.reactive.function.BodyInserters
-import org.springframework.web.reactive.function.server.HandlerFunction
-import org.springframework.web.reactive.function.server.RequestPredicates
-import org.springframework.web.reactive.function.server.RouterFunction
-import org.springframework.web.reactive.function.server.RouterFunctions
+import org.springframework.web.reactive.function.BodyInserters.fromObject
+import org.springframework.web.reactive.function.server.*
 import org.springframework.web.reactive.function.server.RouterFunctions.route
-import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.servlet.ViewResolver
 import org.thymeleaf.ITemplateEngine
 import org.thymeleaf.spring5.ISpringTemplateEngine
@@ -42,6 +40,18 @@ fun beans() = beans {
 //        viewResolver.characterEncoding = "UTF-8"
 //        viewResolver
 //    }
+
+    bean {
+        router {
+            GET("/route") {
+                ServerResponse.ok()
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .body(fromObject("Hello World")) }
+            ("/blog" and accept(TEXT_HTML)).nest {
+                GET("/") { ServerResponse.ok().body(fromObject("Foo")) }
+            }
+        }
+    }
 
     bean<Foo>()
 
