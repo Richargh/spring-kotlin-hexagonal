@@ -1,13 +1,10 @@
 package de.richargh.springkotlinhexagonal
 
-import io.mockk.every
-import io.mockk.mockk
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.boot.builder.SpringApplicationBuilder
-import org.springframework.context.support.beans
 
 class ApplicationTest {
 
@@ -73,12 +70,4 @@ class ApplicationTest {
                 .run("--server.port=$port")
     }
 
-}
-
-fun testHomeBeans() = beans {
-    bean<Foo>(isPrimary = true){
-        val foo = mockk<Foo>(relaxed = true)
-        every { foo.sayHello() } returns "Moin"
-        foo
-    }
 }
