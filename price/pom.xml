@@ -13,7 +13,7 @@
         <spring.boot.version>2.0.5.RELEASE</spring.boot.version>
 
         <junit.version>5.2.0</junit.version>
-        <mockk.version>1.9</mockk.version>
+        <mockk.version>1.8</mockk.version>
 
         <maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>
         <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
@@ -199,6 +199,12 @@
             <groupId>io.mockk</groupId>
             <artifactId>mockk</artifactId>
             <version>${mockk.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>3.3.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>

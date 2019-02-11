@@ -19,10 +19,3 @@ fun main(args: Array<String>) {
     val bean1 = applicationContext.getBean(Foo::class.java)
     println(bean1.sayHello())
 }
-
-fun routeHtml() = router {
-    accept(TEXT_HTML).nest {
-        GET("/") { ServerResponse.ok().contentType(MediaType.TEXT_PLAIN)
-                .body(BodyInserters.fromObject("Hello, Spring Webflux Example!")) }
-    }
-}
