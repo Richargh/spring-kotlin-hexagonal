@@ -2,19 +2,12 @@ package de.richargh.springkotlinhexagonal
 
 import io.mockk.every
 import io.mockk.mockk
-import io.restassured.RestAssured.`when`
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.assertj.core.api.Assertions.assertThat
-import org.hamcrest.CoreMatchers.hasItems
 import org.junit.jupiter.api.Test
 import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.context.support.beans
-import org.springframework.test.web.servlet.MockMvc
-import io.restassured.path.xml.XmlPath.CompatibilityMode
-import io.restassured.path.xml.XmlPath
-import org.junit.jupiter.api.BeforeAll
-import org.springframework.context.ConfigurableApplicationContext
 
 class ApplicationTest {
 
