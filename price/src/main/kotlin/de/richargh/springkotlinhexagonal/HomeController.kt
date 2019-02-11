@@ -5,11 +5,11 @@ import org.springframework.web.bind.annotation.RequestMapping
 
 
 @Controller
-class HomeController(private val foo: Foo) {
+class HomeController(private val greeter: Greeter) {
 
     @RequestMapping("/")
     fun index(model: MutableMap<String, Any>): String {
-        model["message"] = foo.sayHello()
+        model["message"] = greeter.sayHello()
         return "greeting"
     }
 

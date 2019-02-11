@@ -15,7 +15,7 @@ class ApplicationContextTest {
         }
 
         // act
-        val foo = applicationContext.getBean(Foo::class.java)
+        val foo = applicationContext.getBean(Greeter::class.java)
         val greeting = foo.sayHello()
 
         // assert
@@ -32,7 +32,7 @@ class ApplicationContextTest {
         }
 
         // act
-        val foo = applicationContext.getBean(Foo::class.java)
+        val foo = applicationContext.getBean(Greeter::class.java)
         val greeting = foo.sayHello()
 
         // assert

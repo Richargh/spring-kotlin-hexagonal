@@ -1,5 +1,5 @@
 package de.richargh.springkotlinhexagonal
 
-class Foo{
+class Greeter{
     fun sayHello() = "Hello"
 }

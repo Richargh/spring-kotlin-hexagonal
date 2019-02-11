@@ -23,7 +23,7 @@ class ApplicationTest {
                 .body().htmlPath()
 
         // Assert
-        val bean1 = applicationContext.getBean(Foo::class.java)
+        val bean1 = applicationContext.getBean(Greeter::class.java)
         assertThat(bean1.sayHello()).isEqualTo("Moin")
         assertThat(htmlPath.getString("html.head.title")).isEqualTo("Spring Boot Thymeleaf Hello Price")
     }
@@ -43,7 +43,7 @@ class ApplicationTest {
                 .body().htmlPath()
 
         // Assert
-        val bean1 = applicationContext.getBean(Foo::class.java)
+        val bean1 = applicationContext.getBean(Greeter::class.java)
         assertThat(bean1.sayHello()).isEqualTo("Moin")
         assertThat(htmlPath.getString("html.body.div.div.h2.span")).isEqualTo("Message: Moin")
     }
@@ -52,7 +52,7 @@ class ApplicationTest {
     @Test
     fun `the application bean should be mocked`() {
         // Arrange
-        val bean1 = applicationContext.getBean(Foo::class.java)
+        val bean1 = applicationContext.getBean(Greeter::class.java)
 
         // Act
         val saying = bean1.sayHello()

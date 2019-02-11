@@ -4,18 +4,8 @@ import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactor
 import org.springframework.context.support.beans
 import org.springframework.http.MediaType
 import org.springframework.http.MediaType.TEXT_HTML
-import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.BodyInserters.fromObject
 import org.springframework.web.reactive.function.server.*
-import org.springframework.web.reactive.function.server.RouterFunctions.route
-import org.springframework.web.servlet.ViewResolver
-import org.thymeleaf.ITemplateEngine
-import org.thymeleaf.spring5.ISpringTemplateEngine
-import org.thymeleaf.spring5.SpringTemplateEngine
-import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver
-import org.thymeleaf.spring5.view.ThymeleafViewResolver
-import org.thymeleaf.templatemode.TemplateMode
-import reactor.core.publisher.Mono
 
 fun homeBeans() = beans {
 
@@ -53,7 +43,7 @@ fun homeBeans() = beans {
         }
     }
 
-    bean<Foo>()
+    bean<Greeter>()
 
     bean<HomeController>()
 
