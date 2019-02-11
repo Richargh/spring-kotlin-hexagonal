@@ -11,26 +11,6 @@ fun homeBeans() = beans {
 
     bean<TomcatServletWebServerFactory>()
 
-//    bean<ITemplateEngine>{
-//        val templateResolver = SpringResourceTemplateResolver()
-////            templateResolver.setApplicationContext(this)
-//        templateResolver.templateMode = TemplateMode.HTML
-//        templateResolver.prefix = "views/"
-//        templateResolver.suffix = ".html"
-//
-//        val engine = SpringTemplateEngine()
-//        engine.enableSpringELCompiler = true
-//        engine.setTemplateResolver(templateResolver)
-//        engine
-//    }
-
-//    bean<ViewResolver>{
-//        val viewResolver = ThymeleafViewResolver()
-//        viewResolver.templateEngine = ref()
-//        viewResolver.characterEncoding = "UTF-8"
-//        viewResolver
-//    }
-
     bean {
         router {
             GET("/route") {
@@ -46,14 +26,4 @@ fun homeBeans() = beans {
     bean<Greeter>()
 
     bean<HomeController>()
-
-//    bean<RouterFunction<ServerResponse>>{
-//        route(RequestPredicates.GET("/posts"), HandlerFunction { hello() })
-//    }
-
 }
-
-//fun hello(): Mono<ServerResponse> {
-//    return ServerResponse.ok().contentType(MediaType.TEXT_PLAIN)
-//            .body(BodyInserters.fromObject("Hello, Spring Webflux Example!"))
-//}
