@@ -76,7 +76,7 @@ class ApplicationTest {
 }
 
 fun testHomeBeans() = beans {
-    bean<Foo>{
+    bean<Foo>(isPrimary = true){
         val foo = mockk<Foo>(relaxed = true)
         every { foo.sayHello() } returns "Moin"
         foo
