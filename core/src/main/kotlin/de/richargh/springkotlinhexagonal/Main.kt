@@ -1,27 +1,29 @@
 package de.richargh.springkotlinhexagonal
 
-import java.util.HashMap
-
 import io.javalin.Javalin
+import io.javalin.apibuilder.ApiBuilder.get
 
-object Main {
+fun main(args: Array<String>) {
+    JavalinApp(7777).init()
+}
 
-    private val reservations = mutableMapOf(
-            "saturday" to "No reservation",
-            "sunday" to "No reservation"
-    )
 
-    @JvmStatic
-    fun main(args: Array<String>) {
+class JavalinApp(private val port: Int) {
 
-        val app = Javalin.create()
-                .enableStaticFiles("/public")
-                .start(7777)
+    fun init(): Javalin {
 
-        app.get("/") { ctx ->
-            ctx.html("Foo")
+        val app = Javalin.create().apply {
+            enableStaticFiles("/public")
+            port(port)
+            exception(Exception::class.java) { e, _ -> e.printStackTrace() }
+        }.start()
+
+        app.routes {
+            get("/") { ctx ->
+                ctx.html("Foo")
+            }
         }
 
+        return app
     }
-
 }

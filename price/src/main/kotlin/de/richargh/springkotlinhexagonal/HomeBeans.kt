@@ -17,7 +17,7 @@ import org.thymeleaf.spring5.view.ThymeleafViewResolver
 import org.thymeleaf.templatemode.TemplateMode
 import reactor.core.publisher.Mono
 
-fun beans() = beans {
+fun homeBeans() = beans {
 
     bean<TomcatServletWebServerFactory>()
 
@@ -67,7 +67,3 @@ fun beans() = beans {
 //    return ServerResponse.ok().contentType(MediaType.TEXT_PLAIN)
 //            .body(BodyInserters.fromObject("Hello, Spring Webflux Example!"))
 //}
-
-class Foo{
-    fun sayHello() = "Hi"
-}

@@ -11,7 +11,9 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <kotlin.version>1.3.0</kotlin.version>
         <spring.boot.version>2.0.5.RELEASE</spring.boot.version>
+
         <junit.version>5.2.0</junit.version>
+        <mockk.version>1.9</mockk.version>
 
         <maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>
         <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
@@ -194,9 +196,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.nhaarman</groupId>
-            <artifactId>mockito-kotlin</artifactId>
-            <version>1.6.0</version>
+            <groupId>io.mockk</groupId>
+            <artifactId>mockk</artifactId>
+            <version>${mockk.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
