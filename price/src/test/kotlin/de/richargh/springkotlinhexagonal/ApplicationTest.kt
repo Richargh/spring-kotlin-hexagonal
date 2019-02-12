@@ -61,7 +61,7 @@ class ApplicationTest {
         private val port = 8095
         private val applicationContext = SpringApplicationBuilder()
                 .initializers(homeBeans(), testHomeBeans())
-                .sources(Application::class.java)
+                .sources(Application::class.java, NoCassandraApplication::class.java)
                 .run("--server.port=$port")
     }
 
