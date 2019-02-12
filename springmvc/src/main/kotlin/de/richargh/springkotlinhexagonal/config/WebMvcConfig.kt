@@ -5,18 +5,11 @@ import org.springframework.context.ApplicationContextAware
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.converter.HttpMessageConverter
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
-import org.springframework.web.servlet.ViewResolver
 import org.springframework.web.servlet.config.annotation.*
-import org.springframework.web.servlet.view.InternalResourceViewResolver
-import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer
-import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver
 import org.thymeleaf.spring5.SpringTemplateEngine
 import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver
 import org.thymeleaf.spring5.view.ThymeleafViewResolver
 import org.thymeleaf.templatemode.TemplateMode
-
-import java.time.LocalDate
 
 @Configuration
 @EnableWebMvc
@@ -27,12 +20,6 @@ open class WebMvcConfig: WebMvcConfigurer,
 
     override fun setApplicationContext(applicationContext: ApplicationContext?) {
         this.applicationContext = applicationContext
-    }
-
-    override fun addViewControllers(registry: ViewControllerRegistry?) {
-        super.addViewControllers(registry)
-
-        registry!!.addViewController("/welcome.html")
     }
 
     @Bean
