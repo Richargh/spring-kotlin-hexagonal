@@ -13,5 +13,6 @@
   <modules>
     <module>core</module>
     <module>price</module>
+    <module>springmvc</module>
   </modules>
 </project>
