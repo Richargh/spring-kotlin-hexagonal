@@ -1,4 +1,6 @@
-package de.richargh.springkotlinhexagonal
+package de.richargh.springkotlinhexagonal.server
+
+import java.io.IOException
 
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.servlet.ServletContextHandler
@@ -8,31 +10,23 @@ import org.springframework.core.io.ClassPathResource
 import org.springframework.web.context.ContextLoaderListener
 import org.springframework.web.context.WebApplicationContext
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext
-import org.springframework.web.context.support.GenericWebApplicationContext
 import org.springframework.web.servlet.DispatcherServlet
-import java.io.IOException
-import java.net.URI
+
 
 private val PORT = 9290
+
 fun main(args: Array<String>) {
-    val webAppContext = AnnotationConfigWebApplicationContext()
-    webAppContext.register(ApplicationWebConfig::class.java)
-
-
-
-    EmbeddedJetty().startJetty(PORT, webAppContext)
+    EmbeddedJetty().startJetty(PORT)
 }
 
 class EmbeddedJetty {
 
     @Throws(Exception::class)
-    fun startJetty(port: Int, webAppContext: AnnotationConfigWebApplicationContext) {
+    fun startJetty(port: Int) {
         LOGGER.debug("Starting server at port {}", port)
         val server = Server(port)
 
-        server.handler = servletContextHandler(webAppContext)
-//        webAppContext.refresh()
-//        println(webAppContext.getBean(HomeController::class.java))
+        server.handler = servletContextHandler()
 
         addRuntimeShutdownHook(server)
 
@@ -41,34 +35,25 @@ class EmbeddedJetty {
         server.join()
     }
 
-
     private val LOGGER = LoggerFactory.getLogger(EmbeddedJetty::class.java)
 
 
     private val CONTEXT_PATH = "/"
-    private val CONFIG_LOCATION_PACKAGE = "com.fernandospr.example.config"
-
-    val MVC_SERVLET_NAME = "mvcDispatcher"
+    private val CONFIG_LOCATION_PACKAGE = "de.richargh.springkotlinhexagonal.config"
     private val MAPPING_URL = "/"
     private val WEBAPP_DIRECTORY = "webapp"
 
 
-    private fun servletContextHandler(webAppContext: AnnotationConfigWebApplicationContext): ServletContextHandler {
+    private fun servletContextHandler(): ServletContextHandler {
         val contextHandler = ServletContextHandler(ServletContextHandler.SESSIONS)
         contextHandler.errorHandler = null
 
-        val uri = URI("classpath://templates")
-        contextHandler.resourceBase = uri.toString()
+        contextHandler.resourceBase = ClassPathResource(WEBAPP_DIRECTORY).uri.toString()
         contextHandler.contextPath = CONTEXT_PATH
-        contextHandler.classLoader = Thread.currentThread().contextClassLoader
-        //            contextHandler.addServlet(JspServlet::class.java, "*.jsp")
-
-//        val webAppContext = webApplicationContext()
-        val dispatcherServlet = DispatcherServlet(webAppContext) //webAppContext
-        val springServletHolder = ServletHolder(dispatcherServlet)
-
-
-        contextHandler.addServlet(springServletHolder, "/")
+        val webAppContext = webApplicationContext()
+        val dispatcherServlet = DispatcherServlet(webAppContext)
+        val springServletHolder = ServletHolder("mvc-dispatcher", dispatcherServlet)
+        contextHandler.addServlet(springServletHolder, MAPPING_URL)
         contextHandler.addEventListener(ContextLoaderListener(webAppContext))
 
         return contextHandler
