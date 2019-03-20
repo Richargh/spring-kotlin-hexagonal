@@ -3,7 +3,6 @@ package de.richargh.springkotlinhexagonal
 import de.richargh.springkotlinhexagonal.config.PropertyConfig
 import de.richargh.springkotlinhexagonal.properties.GreeterProperties
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.springframework.boot.SpringBootConfiguration
 import org.springframework.boot.autoconfigure.AutoConfigurationExcludeFilter
@@ -24,27 +23,35 @@ class ApplicationPropertiesTest {
         val nameToSpeak = "Foo"
         val personInProperties = "blub"
         val propertyConfig: Array<Class<out Any>> = arrayOf(PropertyConfig::class.java)
-        val context = createContext(propertyConfig)
-        val runningContext = createRunningContext(propertyConfig)
 
-        // act
-        val speaker = context.getBean(Speaker::class.java)
-        val runningSpeaker = runningContext.getBean(Speaker::class.java)
+        val (speakerActual, runningSpeakerActual) = createContext(propertyConfig).use { context ->
+            createRunningContext(propertyConfig).use { runningContext ->
+                // act
+                val speakerActual = context.getBean(Speaker::class.java).speak(nameToSpeak)
+                val runningSpeakerActual = runningContext.getBean(Speaker::class.java).speak(nameToSpeak)
+                speakerActual to runningSpeakerActual
+            }
+        }
 
         // assert
-        assertThat(runningSpeaker.speak(nameToSpeak)).isEqualTo("Hello $nameToSpeak, $personInProperties greets you")
-        assertThat(runningSpeaker.speak(nameToSpeak)).isEqualTo(speaker.speak(nameToSpeak))
+        assertThat(runningSpeakerActual).isEqualTo("Hello $nameToSpeak, $personInProperties greets you")
+        assertThat(runningSpeakerActual).isEqualTo(speakerActual)
     }
 
     @Test
-    fun `without PropertyConfig application properties are not found`() {
+    fun `test is red without PropertyConfig application properties are not found`() {
         // arrange
+        val nameToSpeak = "Foo"
+        val personInProperties = "blub"
         val propertyConfig: Array<Class<out Any>> = emptyArray()
 
-        // act, assert
-        assertThatThrownBy{
-            createRunningContext(propertyConfig)
-        }.isInstanceOf(UninitializedPropertyAccessException::class.java)
+        val runningSpeakerActual = createRunningContext(propertyConfig).use { runningContext ->
+            // act
+            runningContext.getBean(Speaker::class.java).speak(nameToSpeak)
+        }
+
+        // assert
+        assertThat(runningSpeakerActual).isEqualTo("Hello $nameToSpeak, $personInProperties greets you")
     }
 
     @Test
@@ -52,16 +59,17 @@ class ApplicationPropertiesTest {
         // arrange
         val nameToSpeak = "Foo"
         val personInProperties = "blub"
-        val runningContext = SpringApplicationBuilder()
+        val springApplicationBuilder = SpringApplicationBuilder()
                 .sources(ApplicationWithComponentScan::class.java)
                 .initializers(*beans())
-                .run()
 
-        // act
-        val runningSpeaker = runningContext.getBean(Speaker::class.java)
+        val runningSpeakerActual = springApplicationBuilder.run().use { runningContext ->
+            // act
+            runningContext.getBean(Speaker::class.java).speak(nameToSpeak)
+        }
 
         // assert
-        assertThat(runningSpeaker.speak(nameToSpeak)).isEqualTo("Hello $nameToSpeak, $personInProperties greets you")
+        assertThat(runningSpeakerActual).isEqualTo("Hello $nameToSpeak, $personInProperties greets you")
     }
 
 
