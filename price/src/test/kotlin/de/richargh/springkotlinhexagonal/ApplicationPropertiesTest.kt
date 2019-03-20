@@ -24,14 +24,14 @@ class ApplicationPropertiesTest {
         val personInProperties = "blub"
         val propertyConfig: Array<Class<out Any>> = arrayOf(PropertyConfig::class.java)
 
-        val (speakerActual, runningSpeakerActual) = createContext(propertyConfig).use { context ->
+        val (speakerActual, runningSpeakerActual) =
+            createContext(propertyConfig).use { context ->
             createRunningContext(propertyConfig).use { runningContext ->
-                // act
-                val speakerActual = context.getBean(Speaker::class.java).speak(nameToSpeak)
-                val runningSpeakerActual = runningContext.getBean(Speaker::class.java).speak(nameToSpeak)
-                speakerActual to runningSpeakerActual
-            }
-        }
+            // act
+            val speakerActual = context.getBean(Speaker::class.java).speak(nameToSpeak)
+            val runningSpeakerActual = runningContext.getBean(Speaker::class.java).speak(nameToSpeak)
+            speakerActual to runningSpeakerActual
+        }}
 
         // assert
         assertThat(runningSpeakerActual).isEqualTo("Hello $nameToSpeak, $personInProperties greets you")

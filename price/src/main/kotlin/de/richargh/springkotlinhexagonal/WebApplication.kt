@@ -1,9 +1,6 @@
 package de.richargh.springkotlinhexagonal
 
-import de.richargh.springkotlinhexagonal.config.PropertyConfig
-import de.richargh.springkotlinhexagonal.config.SpeakerConfig
-import de.richargh.springkotlinhexagonal.config.configBeans
-import de.richargh.springkotlinhexagonal.config.homeBeans
+import de.richargh.springkotlinhexagonal.config.*
 import de.richargh.springkotlinhexagonal.properties.GreeterProperties
 import org.springframework.boot.SpringBootConfiguration
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
@@ -50,13 +47,13 @@ internal fun createRunningContext(extraClasses: Array<Class<out Any>>, args: Arr
 internal fun configurations() = arrayOf(
         Application::class.java,
         NoCassandraApplication::class.java,
+        PlaceholderConfig::class.java,
 
         SpeakerConfig::class.java
 )
 
 internal fun beans() = arrayOf(
-        homeBeans(),
-        configBeans()
+        homeBeans()
 )
 
 private fun printProperties(){
