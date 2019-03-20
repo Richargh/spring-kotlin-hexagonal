@@ -8,7 +8,7 @@
   <artifactId>parent</artifactId>
   <version>1.0-SNAPSHOT</version>
 
-  <name>parent</name>
+  <name>spring-kotlin-hexagonal-all</name>
 
   <modules>
     <module>core</module>
