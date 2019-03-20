@@ -1,5 +1,10 @@
 package de.richargh.springkotlinhexagonal
 
+import de.richargh.springkotlinhexagonal.config.PropertyConfig
+import de.richargh.springkotlinhexagonal.config.SpeakerConfig
+import de.richargh.springkotlinhexagonal.config.configBeans
+import de.richargh.springkotlinhexagonal.config.homeBeans
+import de.richargh.springkotlinhexagonal.properties.MixitProperties
 import org.springframework.boot.SpringBootConfiguration
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.autoconfigure.data.cassandra.CassandraDataAutoConfiguration
@@ -21,6 +26,7 @@ open class NoCassandraApplication
 fun configurations() = arrayOf(
         Application::class.java,
         NoCassandraApplication::class.java,
+        
         SpeakerConfig::class.java,
         PropertyConfig::class.java
 )
@@ -71,17 +77,3 @@ fun main(args: Array<String>) {
 //    println(speaker.speak("Humbert"))
 
 }
-
-
-@Configuration
-open class SpeakerConfig {
-    @Bean
-    open fun speaker() = Speaker()
-}
-
-@Configuration
-@PropertySources(
-    PropertySource("application.properties"),
-    PropertySource("application-dev.properties")
-)
-open class PropertyConfig

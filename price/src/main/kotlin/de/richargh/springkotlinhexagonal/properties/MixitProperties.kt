@@ -1,4 +1,4 @@
-package de.richargh.springkotlinhexagonal
+package de.richargh.springkotlinhexagonal.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 

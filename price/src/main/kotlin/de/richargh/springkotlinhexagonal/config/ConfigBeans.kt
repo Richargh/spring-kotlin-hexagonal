@@ -1,4 +1,4 @@
-package de.richargh.springkotlinhexagonal
+package de.richargh.springkotlinhexagonal.config
 
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 import org.springframework.context.support.beans

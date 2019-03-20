@@ -1,5 +1,6 @@
 package de.richargh.springkotlinhexagonal
 
+import de.richargh.springkotlinhexagonal.config.homeBeans
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.assertj.core.api.Assertions.assertThat
