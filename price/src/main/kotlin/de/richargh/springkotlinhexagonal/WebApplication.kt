@@ -14,66 +14,60 @@ import org.springframework.context.annotation.*
 import java.util.*
 import org.springframework.context.ConfigurableApplicationContext
 
-@EnableConfigurationProperties(GreeterProperties::class)
 @SpringBootConfiguration
 @EnableAutoConfiguration
+@EnableConfigurationProperties(GreeterProperties::class)
 open class Application
 
 @EnableAutoConfiguration(exclude = [CassandraDataAutoConfiguration::class])
 open class NoCassandraApplication
 
 
-fun configurations() = arrayOf(
-        Application::class.java,
-        NoCassandraApplication::class.java,
+fun main(args: Array<String>) {
+    printProperties()
+    createRunningContext(arrayOf(PropertyConfig::class.java), args)
+}
 
-        SpeakerConfig::class.java,
-        PropertyConfig::class.java
-)
-
-fun beans() = arrayOf(
-        homeBeans(),
-        configBeans()
-)
-
-fun createContext(): ConfigurableApplicationContext {
+internal fun createContext(extraClasses: Array<Class<out Any>>): ConfigurableApplicationContext {
     val ctx = AnnotationConfigApplicationContext()
     configurations().forEach{ ctx.register(it) }
     beans().forEach { it.initialize(ctx) }
-//    ctx.refresh()
 
-//    val speaker = ctx.getBean(Speaker::class.java)
-//    println("Speaker: "+speaker.speak("Humbert"))
-//
-//    val homeController = ctx.getBean(HomeController::class.java)
-//    println("HomeController: "+homeController.index(mutableMapOf("" to "")))
+    extraClasses.forEach { ctx.register(it) }
 
+    ctx.refresh()
     return ctx
 }
 
-fun createApplication(args: Array<String>): ConfigurableApplicationContext{
+internal fun createRunningContext(extraClasses: Array<Class<out Any>>, args: Array<String> = emptyArray()): ConfigurableApplicationContext{
     val applicationContext = SpringApplicationBuilder()
-            .sources(*configurations())
+            .sources(*extraClasses, *configurations())
             .initializers(*beans())
             .run(*args)
     return applicationContext
 }
 
-fun checkPropertiesManually(){
-    val properties = Properties()
-    properties.load(Thread.currentThread().contextClassLoader.getResourceAsStream("application.properties"))
-    println("Loaded person from properties ${properties.getProperty("price.greeter.person")}")
-}
+internal fun configurations() = arrayOf(
+        Application::class.java,
+        NoCassandraApplication::class.java,
 
-fun main(args: Array<String>) {
-    val context = createContext()
-    createApplication(args)
+        SpeakerConfig::class.java
+)
 
+internal fun beans() = arrayOf(
+        homeBeans(),
+        configBeans()
+)
 
+private fun printProperties(){
+    val applicationProperties = Properties().apply {
+        load(Thread.currentThread().contextClassLoader.getResourceAsStream("application.properties"))
+    }
+    val devProperties = Properties().apply {
+        load(Thread.currentThread().contextClassLoader.getResourceAsStream("application-dev.properties"))
+    }
+    val key = "price.greeter.person"
 
-//    val greeter = applicationContext.getBean(Greeter::class.java)
-//    println(greeter.sayHello())
-//    val speaker = applicationContext.getBean(Speaker::class.java)
-//    println(speaker.speak("Humbert"))
-
+    println("Application.properties has property value: ${applicationProperties.getProperty(key)}")
+    println("Application-dev.properties has property value: ${devProperties.getProperty(key)}")
 }
