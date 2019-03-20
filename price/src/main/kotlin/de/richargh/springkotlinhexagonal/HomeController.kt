@@ -2,15 +2,32 @@ package de.richargh.springkotlinhexagonal
 
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
-
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.servlet.ModelAndView
 
 @Controller
-class HomeController(private val greeter: Greeter) {
+class HomeController(private val greeter: Greeter, private val speaker: Speaker) {
 
-    @RequestMapping("/")
-    fun index(model: MutableMap<String, Any>): String {
-        model["message"] = greeter.sayHello()
-        return "greeting"
+    @RequestMapping("/{name}")
+    fun index(@RequestParam("name")name: String?): ModelAndView {
+        return if(name == null){
+            createGreeting()
+        }
+        else {
+            createSaying(name)
+        }
+    }
+
+    private fun createSaying(name: String): ModelAndView {
+        val mav = ModelAndView("speaking")
+        mav.addObject("message", speaker.speak(name))
+        return mav
+    }
+
+    private fun createGreeting(): ModelAndView {
+        val mav = ModelAndView("greeting")
+        mav.addObject("message", greeter.sayHello())
+        return mav
     }
 
 }

@@ -4,7 +4,7 @@ import de.richargh.springkotlinhexagonal.config.PropertyConfig
 import de.richargh.springkotlinhexagonal.config.SpeakerConfig
 import de.richargh.springkotlinhexagonal.config.configBeans
 import de.richargh.springkotlinhexagonal.config.homeBeans
-import de.richargh.springkotlinhexagonal.properties.MixitProperties
+import de.richargh.springkotlinhexagonal.properties.GreeterProperties
 import org.springframework.boot.SpringBootConfiguration
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.autoconfigure.data.cassandra.CassandraDataAutoConfiguration
@@ -14,7 +14,7 @@ import org.springframework.context.annotation.*
 import java.util.*
 import org.springframework.context.ConfigurableApplicationContext
 
-@EnableConfigurationProperties(MixitProperties::class)
+@EnableConfigurationProperties(GreeterProperties::class)
 @SpringBootConfiguration
 @EnableAutoConfiguration
 open class Application
@@ -26,7 +26,7 @@ open class NoCassandraApplication
 fun configurations() = arrayOf(
         Application::class.java,
         NoCassandraApplication::class.java,
-        
+
         SpeakerConfig::class.java,
         PropertyConfig::class.java
 )
