@@ -23,29 +23,23 @@ open class WebMvcConfig: WebMvcConfigurer,
     }
 
     @Bean
-    open fun templateResolver(): SpringResourceTemplateResolver {
-        return SpringResourceTemplateResolver()
-                .apply { prefix = "/pages/" }
-                .apply { suffix = ".html"}
-                .apply { templateMode = TemplateMode.HTML }
-                .apply { setApplicationContext(applicationContext) }
+    open fun templateResolver() = SpringResourceTemplateResolver().apply {
+        prefix = "/pages/"
+        suffix = ".html"
+        templateMode = TemplateMode.HTML
+        setApplicationContext(applicationContext)
     }
 
     @Bean
-    open fun templateEngine(): SpringTemplateEngine {
-        return SpringTemplateEngine()
-                .apply { setTemplateResolver(templateResolver()) }
-    }
+    open fun templateEngine() = SpringTemplateEngine().apply { setTemplateResolver(templateResolver()) }
 
     @Bean
-    open fun viewResolver(): ThymeleafViewResolver {
-        return ThymeleafViewResolver()
-                .apply { templateEngine = templateEngine() }
-                .apply { order = 1 }
+    open fun viewResolver() = ThymeleafViewResolver().apply {
+        templateEngine = templateEngine()
+        order = 1
     }
 
     override fun configureMessageConverters(converters: List<HttpMessageConverter<*>>?) {
-
         super.configureMessageConverters(converters)
     }
 
