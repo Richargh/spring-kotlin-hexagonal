@@ -118,3 +118,11 @@ public static Test suite() {
 
 https://github.com/dsyer/spring-boot-micro-apps/tree/master/src/main/java/com/example
 https://github.com/dsyer/spring-boot-allocations/tree/master/src/main/java/com/example
+
+## Common Application Properties
+
+https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#common-application-
+
+## ContextConfiguration for Tests
+
+https://docs.spring.io/spring/docs/current/spring-framework-reference/testing.html#spring-testing-annotation-contextconfiguration

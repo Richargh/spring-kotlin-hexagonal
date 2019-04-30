@@ -1,12 +1,11 @@
 package de.richargh.springkotlinhexagonal.config
 
-import de.richargh.springkotlinhexagonal.Greeter
 import de.richargh.springkotlinhexagonal.HomeController
-import de.richargh.springkotlinhexagonal.Speaker
+import de.richargh.springkotlinhexagonal.Replier
 import org.springframework.context.support.beans
 
-fun homeBeans() = beans {
-    bean<Speaker>()
+fun functionalHomeConfig() = beans {
+    bean<Replier>()
     bean<HomeController>()
     environment({!activeProfiles.contains("foo")}){
         bean {

@@ -1,62 +1,73 @@
 package de.richargh.springkotlinhexagonal
 
-import de.richargh.springkotlinhexagonal.config.*
+import de.richargh.springkotlinhexagonal.config.AnnotationGreeterConfig
+import de.richargh.springkotlinhexagonal.config.AnnotationPlaceholderConfig
+import de.richargh.springkotlinhexagonal.config.functionalHomeConfig
 import de.richargh.springkotlinhexagonal.properties.GreeterProperties
 import org.springframework.boot.SpringBootConfiguration
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.autoconfigure.data.cassandra.CassandraDataAutoConfiguration
-import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.boot.context.properties.EnableConfigurationProperties
-import org.springframework.context.annotation.*
-import java.util.*
+import org.springframework.boot.runApplication
 import org.springframework.context.ConfigurableApplicationContext
+import org.springframework.context.annotation.AnnotationConfigApplicationContext
+import org.springframework.context.support.BeanDefinitionDsl
+import java.util.*
 
-@SpringBootConfiguration
 @EnableAutoConfiguration
+@SpringBootConfiguration
 @EnableConfigurationProperties(GreeterProperties::class)
 open class Application
 
 @EnableAutoConfiguration(exclude = [CassandraDataAutoConfiguration::class])
 open class NoCassandraApplication
 
-
 fun main(args: Array<String>) {
     printProperties()
-    createRunningContext(arrayOf(PropertyConfig::class.java), args)
+    createRunningContext(args)
 }
 
-internal fun createContext(extraClasses: Array<Class<out Any>>): ConfigurableApplicationContext {
-    val ctx = AnnotationConfigApplicationContext()
-    configurations().forEach{ ctx.register(it) }
-    beans().forEach { it.initialize(ctx) }
+internal fun createContext(
+        additionalAnnotationConfig: Array<Class<out Any>> = emptyArray(),
+        additionalFunctionalConfig: Array<BeanDefinitionDsl> = emptyArray()): ConfigurableApplicationContext {
+    val context = AnnotationConfigApplicationContext()
+    annotationProductionConfig().forEach { context.register(it) }
+    additionalAnnotationConfig.forEach { context.register(it) }
 
-    extraClasses.forEach { ctx.register(it) }
+    functionalProductionConfig().forEach { it.initialize(context) }
+    additionalFunctionalConfig.forEach { it.initialize(context) }
 
-    ctx.refresh()
-    return ctx
+    context.refresh()
+    return context
 }
 
-internal fun createRunningContext(extraClasses: Array<Class<out Any>>, args: Array<String> = emptyArray()): ConfigurableApplicationContext{
-    val applicationContext = SpringApplicationBuilder()
-            .sources(*extraClasses, *configurations())
-            .initializers(*beans())
-            .run(*args)
-    return applicationContext
+internal fun createRunningContext(extraConfigs: Array<Class<out Any>>) =
+        createRunningContext(emptyArray(), extraConfigs, emptyArray())
+
+internal fun createRunningContext(
+        args: Array<String> = emptyArray(),
+        additionalAnnotationConfig: Array<Class<out Any>> = emptyArray(),
+        additionalFunctionalConfig: Array<BeanDefinitionDsl> = emptyArray()) = runApplication<Application>(*args) {
+    addPrimarySources(annotationProductionConfig().toList())
+    addPrimarySources(additionalAnnotationConfig.toList())
+
+    addInitializers(*functionalProductionConfig())
+    addInitializers(*additionalFunctionalConfig)
+
+    setAdditionalProfiles("dev")
 }
 
-internal fun configurations() = arrayOf(
+internal fun annotationProductionConfig() = arrayOf(
         Application::class.java,
         NoCassandraApplication::class.java,
-        PlaceholderConfig::class.java,
 
-        SpeakerConfig::class.java
-)
+        AnnotationPlaceholderConfig::class.java,
+        AnnotationGreeterConfig::class.java)
 
-internal fun beans() = arrayOf(
-        homeBeans()
-)
+internal fun functionalProductionConfig() = arrayOf(
+        functionalHomeConfig())
 
-private fun printProperties(){
+private fun printProperties() {
     val applicationProperties = Properties().apply {
         load(Thread.currentThread().contextClassLoader.getResourceAsStream("application.properties"))
     }

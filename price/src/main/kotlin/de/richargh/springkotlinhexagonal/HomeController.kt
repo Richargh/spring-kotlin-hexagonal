@@ -1,27 +1,22 @@
 package de.richargh.springkotlinhexagonal
 
 import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
 
 @Controller
-class HomeController(private val greeter: Greeter, private val speaker: Speaker) {
+class HomeController(private val greeter: Greeter, private val replier: Replier) {
 
-    @RequestMapping("/{name}")
-    fun index(@RequestParam("name")name: String?): ModelAndView {
-        return if(name == null){
-            createGreeting()
-        }
-        else {
-            createSaying(name)
-        }
+    @GetMapping
+    fun index(): ModelAndView {
+        return createGreeting()
     }
 
-    private fun createSaying(name: String): ModelAndView {
-        val mav = ModelAndView("speaking")
-        mav.addObject("message", speaker.speak(name))
-        return mav
+    @GetMapping("reply")
+    fun reply(@RequestParam("name") name: String): ModelAndView {
+        return createReply(name)
     }
 
     private fun createGreeting(): ModelAndView {
@@ -30,4 +25,9 @@ class HomeController(private val greeter: Greeter, private val speaker: Speaker)
         return mav
     }
 
+    private fun createReply(name: String): ModelAndView {
+        val mav = ModelAndView("reply")
+        mav.addObject("message", replier.speak(name))
+        return mav
+    }
 }

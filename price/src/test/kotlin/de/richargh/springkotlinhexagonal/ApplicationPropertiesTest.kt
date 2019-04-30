@@ -1,6 +1,6 @@
 package de.richargh.springkotlinhexagonal
 
-import de.richargh.springkotlinhexagonal.config.PropertyConfig
+import de.richargh.springkotlinhexagonal.config.AnnotationPropertyConfig
 import de.richargh.springkotlinhexagonal.properties.GreeterProperties
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.data.cassandra.CassandraDataAutoCo
 import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.boot.context.TypeExcludeFilter
 import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.boot.runApplication
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.FilterType
 import org.springframework.stereotype.Controller
@@ -18,20 +19,34 @@ import org.springframework.stereotype.Controller
 class ApplicationPropertiesTest {
 
     @Test
+    fun `foo`() {
+        val nameToSpeak = "Foo"
+        val (speakerActual, runningSpeakerActual) = createRunningContext().use { context ->
+            val speakerActual = context.getBean(Replier::class.java).speak(nameToSpeak)
+            val runningSpeakerActual = context.getBean(Replier::class.java).speak(nameToSpeak)
+            speakerActual to runningSpeakerActual
+        }
+
+        // assert
+        assertThat(runningSpeakerActual).isEqualTo(speakerActual)
+    }
+
+    @Test
     fun `with PropertyConfig properties are read correctly from application properties`() {
         // arrange
         val nameToSpeak = "Foo"
         val personInProperties = "blub"
-        val propertyConfig: Array<Class<out Any>> = arrayOf(PropertyConfig::class.java)
+        val testConfig: Array<Class<out Any>> = arrayOf(AnnotationPropertyConfig::class.java)
 
         val (speakerActual, runningSpeakerActual) =
-            createContext(propertyConfig).use { context ->
-            createRunningContext(propertyConfig).use { runningContext ->
-            // act
-            val speakerActual = context.getBean(Speaker::class.java).speak(nameToSpeak)
-            val runningSpeakerActual = runningContext.getBean(Speaker::class.java).speak(nameToSpeak)
-            speakerActual to runningSpeakerActual
-        }}
+                createContext(testConfig).use { context ->
+                    createRunningContext(testConfig).use { runningContext ->
+                        // act
+                        val speakerActual = context.getBean(Replier::class.java).speak(nameToSpeak)
+                        val runningSpeakerActual = runningContext.getBean(Replier::class.java).speak(nameToSpeak)
+                        speakerActual to runningSpeakerActual
+                    }
+                }
 
         // assert
         assertThat(runningSpeakerActual).isEqualTo("Hello $nameToSpeak, $personInProperties greets you")
@@ -43,11 +58,10 @@ class ApplicationPropertiesTest {
         // arrange
         val nameToSpeak = "Foo"
         val personInProperties = "blub"
-        val propertyConfig: Array<Class<out Any>> = emptyArray()
 
-        val runningSpeakerActual = createRunningContext(propertyConfig).use { runningContext ->
+        val runningSpeakerActual = createRunningContext().use { runningContext ->
             // act
-            runningContext.getBean(Speaker::class.java).speak(nameToSpeak)
+            runningContext.getBean(Replier::class.java).speak(nameToSpeak)
         }
 
         // assert
@@ -59,19 +73,15 @@ class ApplicationPropertiesTest {
         // arrange
         val nameToSpeak = "Foo"
         val personInProperties = "blub"
-        val springApplicationBuilder = SpringApplicationBuilder()
-                .sources(ApplicationWithComponentScan::class.java)
-                .initializers(*beans())
 
-        val runningSpeakerActual = springApplicationBuilder.run().use { runningContext ->
+        val runningSpeakerActual = createRunningContext().use { runningContext ->
             // act
-            runningContext.getBean(Speaker::class.java).speak(nameToSpeak)
+            runningContext.getBean(Replier::class.java).speak(nameToSpeak)
         }
 
         // assert
         assertThat(runningSpeakerActual).isEqualTo("Hello $nameToSpeak, $personInProperties greets you")
     }
-
 
     @ComponentScan(excludeFilters = [
         ComponentScan.Filter(type = FilterType.CUSTOM, classes = [TypeExcludeFilter::class]),
@@ -82,5 +92,4 @@ class ApplicationPropertiesTest {
     @EnableAutoConfiguration(exclude = [CassandraDataAutoConfiguration::class])
     @EnableConfigurationProperties(GreeterProperties::class)
     open class ApplicationWithComponentScan
-
 }

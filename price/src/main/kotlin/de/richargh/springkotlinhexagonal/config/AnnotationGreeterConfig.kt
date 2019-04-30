@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-open class SpeakerConfig {
+open class AnnotationGreeterConfig {
     @Bean
     open fun greeter() = Greeter()
 }

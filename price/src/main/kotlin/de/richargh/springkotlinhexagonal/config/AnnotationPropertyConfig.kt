@@ -9,4 +9,4 @@ import org.springframework.context.annotation.PropertySources
         PropertySource("application.properties"),
         PropertySource("application-dev.properties")
                 )
-open class PropertyConfig
+open class AnnotationPropertyConfig
