@@ -1,20 +1,19 @@
 package de.richargh.springkotlinhexagonal
 
-import de.richargh.springkotlinhexagonal.config.annotationTestConfig
-import de.richargh.springkotlinhexagonal.config.functionalTestConfig
+import de.richargh.springkotlinhexagonal.config.functionalTestOverridingMockConfig
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class RunningApplicationTest {
+class RunningContextTest {
 
     @Test
     fun `the header of the index page should be correct`() {
         // Arrange
 
         // Act
-        val htmlPath = given().port(port)
+        val htmlPath = given().port(devPort)
                 .`when`()
                 .get("/")
                 .then()
@@ -30,7 +29,7 @@ class RunningApplicationTest {
     @Test
     fun `the application bean should be mocked`() {
         // Arrange
-        val bean1 = applicationContext.getBean(Greeter::class.java)
+        val bean1 = applicationDevContext.getBean(Greeter::class.java)
 
         // Act
         val saying = bean1.sayHello()
@@ -44,7 +43,7 @@ class RunningApplicationTest {
         // Arrange
 
         // Act
-        val htmlPath = given().port(port)
+        val htmlPath = given().port(devPort)
                 .`when`()
                 .get("/")
                 .then()
@@ -63,7 +62,7 @@ class RunningApplicationTest {
         val name = "Jim"
 
         // Act
-        val htmlPath = given().port(port)
+        val htmlPath = given().port(devPort)
                 .`when`()
                 .get("/reply?name=$name")
                 .then()
@@ -77,11 +76,12 @@ class RunningApplicationTest {
     }
 
     @Test
-    fun `the reply page should use the name from the dev property`() {
+    fun `the reply page should use the name from the dev ApplicationProperties, when we use the dev profile`() {
         // Arrange
+        val propertyValue = "dev"
 
         // Act
-        val htmlPath = given().port(port)
+        val htmlPath = given().port(devPort)
                 .`when`()
                 .get("/reply?name=Jim")
                 .then()
@@ -91,16 +91,41 @@ class RunningApplicationTest {
                 .body().htmlPath()
 
         // Assert
-        assertThat(htmlPath.getString("html.body.div.div.h2.span")).contains("dev")
+        assertThat(htmlPath.getString("html.body.div.div.h2.span")).contains("$propertyValue greets you")
+    }
+
+    @Test
+    fun `the reply page should use the name from the default ApplicationProperties, when we don't supply a profile`() {
+        // Arrange
+        val propertyValue = "default"
+
+        // Act
+        val htmlPath = given().port(defaultPort)
+                .`when`()
+                .get("/reply?name=Jim")
+                .then()
+                .statusCode(200)
+                .contentType(ContentType.HTML)
+                .extract()
+                .body().htmlPath()
+
+        // Assert
+        assertThat(htmlPath.getString("html.body.div.div.h2.span")).contains("$propertyValue greets you")
     }
 
     companion object {
 
-        private val port = 8095
-        private val applicationContext = createRunningContext(
-                arrayOf("--server.port=$port"),
-                annotationTestConfig,
-                functionalTestConfig)
+        private val devPort = 8095
+        private val applicationDevContext = createRunningContext(
+                args = arrayOf("--server.port=$devPort", "--spring.profiles.active=dev"),
+                additionalAnnotationConfig = emptyArray(),
+                additionalFunctionalConfig = arrayOf(functionalTestOverridingMockConfig()))
+
+        private val defaultPort = 8096
+        private val applicationDefaultContext = createRunningContext(
+                args = arrayOf("--server.port=$defaultPort"),
+                additionalAnnotationConfig = emptyArray(),
+                additionalFunctionalConfig = arrayOf(functionalTestOverridingMockConfig()))
     }
 
 }

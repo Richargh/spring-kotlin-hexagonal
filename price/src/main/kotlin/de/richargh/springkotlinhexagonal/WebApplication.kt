@@ -41,9 +41,6 @@ internal fun createContext(
     return context
 }
 
-internal fun createRunningContext(extraConfigs: Array<Class<out Any>>) =
-        createRunningContext(emptyArray(), extraConfigs, emptyArray())
-
 internal fun createRunningContext(
         args: Array<String> = emptyArray(),
         additionalAnnotationConfig: Array<Class<out Any>> = emptyArray(),
@@ -53,8 +50,6 @@ internal fun createRunningContext(
 
     addInitializers(*functionalProductionConfig())
     addInitializers(*additionalFunctionalConfig)
-
-    setAdditionalProfiles("dev")
 }
 
 internal fun annotationProductionConfig() = arrayOf(
