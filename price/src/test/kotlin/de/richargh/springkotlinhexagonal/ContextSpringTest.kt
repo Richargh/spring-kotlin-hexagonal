@@ -1,21 +1,28 @@
 package de.richargh.springkotlinhexagonal
 
+import de.richargh.springkotlinhexagonal.config.FunctionalMockConfigInitializer
+import de.richargh.springkotlinhexagonal.config.OurSpringTest
 import de.richargh.springkotlinhexagonal.config.functionalTestOverridingMockConfig
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.PropertySource
 import org.springframework.context.annotation.PropertySources
+import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.TestPropertySource
 
-class ContextTest {
+class ContextSpringTest {
 
+    @OurSpringTest
     @Nested
-    inner class Default {
+    inner class Default(@Autowired val applicationContext: ApplicationContext) {
+
         @Test
         fun `application context can resolve the default greeter`() {
             // arrange
-            val applicationContext = createContext()
 
             // act
             val foo = applicationContext.getBean(Greeter::class.java)
@@ -30,7 +37,6 @@ class ContextTest {
             // arrange
             val propertyValue = "default"
             val name = "Bob"
-            val applicationContext = createContext(arrayOf(AnnotationSinglePropertyConfig::class.java))
 
             // act
             val foo = applicationContext.getBean(Replier::class.java)
@@ -39,18 +45,18 @@ class ContextTest {
             // assert
             assertThat(greeting).isEqualTo("Hello $name, $propertyValue greets you")
         }
-
     }
 
+    @TestPropertySource(locations = ["classpath:application-dev.properties"])
+    @OurSpringTest
     @Nested
-    inner class Dev {
+    inner class Dev(@Autowired val applicationContext: ApplicationContext) {
 
         @Test
         fun `application context will resolve the property in replier with the last supplied ApplicationProperties, even if the dev-Profile ist not active`() {
             // arrange
             val propertyValue = "dev"
             val name = "Bob"
-            val applicationContext = createContext(arrayOf(AnnotationOverridingPropertyConfig::class.java))
 
             // act
             val foo = applicationContext.getBean(Replier::class.java)
@@ -61,13 +67,14 @@ class ContextTest {
         }
     }
 
-
+    @OurSpringTest
+    @ContextConfiguration(initializers = [FunctionalMockConfigInitializer::class])
     @Nested
-    inner class Mock {
+    inner class Mock(@Autowired val applicationContext: ApplicationContext) {
+
         @Test
         fun `application context can resolve the mock greeter`() {
             // arrange
-            val applicationContext = createContext(emptyArray(), arrayOf(functionalTestOverridingMockConfig()))
 
             // act
             val foo = applicationContext.getBean(Greeter::class.java)
@@ -77,9 +84,6 @@ class ContextTest {
             assertThat(greeting).isEqualTo("Moin")
         }
     }
-
-
-
 
     @Configuration
     @PropertySources(
@@ -91,5 +95,4 @@ class ContextTest {
             PropertySource("application.properties"),
             PropertySource("application-dev.properties"))
     open class AnnotationOverridingPropertyConfig
-
 }
