@@ -1,7 +1,7 @@
 package de.richargh.springkotlinhexagonal.config
 
 import de.richargh.springkotlinhexagonal.Application
-import de.richargh.springkotlinhexagonal.NoCassandraApplication
+import de.richargh.springkotlinhexagonal.NoCassandraAnnotationConfig
 import de.richargh.springkotlinhexagonal.functionalProductionConfig
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.context.TestConfiguration
@@ -34,7 +34,7 @@ class FunctionalMockConfigInitializer: ApplicationContextInitializer<GenericAppl
 @TestConfiguration
 @Import(value = [
     Application::class,
-    NoCassandraApplication::class,
+    NoCassandraAnnotationConfig::class,
 
     AnnotationGreeterConfig::class
 ])
