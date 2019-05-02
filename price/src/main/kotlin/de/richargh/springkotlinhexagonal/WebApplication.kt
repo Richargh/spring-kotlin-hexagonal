@@ -26,9 +26,6 @@ open class Application
 @EnableAutoConfiguration(exclude = [CassandraDataAutoConfiguration::class])
 open class NoCassandraAnnotationConfig
 
-internal fun annotationProductionConfig() = arrayOf(
-        Application::class.java
-                                                   )
 
 internal fun functionalProductionConfig() = arrayOf(
         functionalHomeConfig())

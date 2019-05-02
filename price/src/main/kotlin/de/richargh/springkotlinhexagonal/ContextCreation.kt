@@ -9,7 +9,7 @@ internal fun createContext(
         additionalAnnotationConfig: Array<Class<out Any>> = emptyArray(),
         additionalFunctionalConfig: Array<BeanDefinitionDsl> = emptyArray()): ConfigurableApplicationContext {
     val context = AnnotationConfigApplicationContext()
-    annotationProductionConfig().forEach { context.register(it) }
+    context.register(Application::class.java)
     additionalAnnotationConfig.forEach { context.register(it) }
 
     functionalProductionConfig().forEach { it.initialize(context) }
@@ -24,7 +24,7 @@ internal fun createRunningContext(
         additionalAnnotationConfig: Array<Class<out Any>> = emptyArray(),
         additionalFunctionalConfig: Array<BeanDefinitionDsl> = emptyArray()) =
         runApplication<Application>(*args) {
-            addPrimarySources(annotationProductionConfig().toList())
+            addPrimarySources(listOf(Application::class.java))
             addPrimarySources(additionalAnnotationConfig.toList())
 
             addInitializers(*functionalProductionConfig())
