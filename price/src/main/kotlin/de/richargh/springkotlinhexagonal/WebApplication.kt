@@ -21,7 +21,7 @@ open class Application
 
 /**
  * This probably seems strange, why add cassandra starter if we exclude it anyway?
- * The point is to show to exclude AutoConfigurations if the need arises
+ * The point is to show how to exclude AutoConfigurations if the need arises
  */
 @EnableAutoConfiguration(exclude = [CassandraDataAutoConfiguration::class])
 open class NoCassandraAnnotationConfig
