@@ -14,27 +14,20 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
+// we could @ExtendWith(SpringExtension::class) with @SpringBootTest() for this test. We did not to show how to run a non-spring-boot test
 @ExtendWith(SpringExtension::class)
 @ContextConfiguration(initializers = [FunctionalProductionConfigInitializer::class], classes = [TestApplicationConfiguration::class])
 @TestPropertySource(locations = ["classpath:application.properties"])
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 annotation class SpringContextTest
 
+// @ContextConfiguration does not include the initializers, they need to be added manually to all SpringRunningContextTests
+// that is unfortunate but otherwise the tests cannot add additional initializers without failing
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(classes = [TestApplicationConfiguration::class])
 @TestPropertySource(locations = ["classpath:application.properties"])
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 annotation class SpringRunningContextTest
-
-
-
-@ExtendWith(SpringExtension::class)
-@ContextConfiguration(initializers = [FunctionalProductionConfigInitializer::class], classes = [TestApplicationConfiguration::class])
-@TestPropertySource(locations = ["classpath:application.properties"])
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-internal annotation class SpringTest
-
-
 
 class FunctionalProductionConfigInitializer: ApplicationContextInitializer<GenericApplicationContext> {
     override fun initialize(context: GenericApplicationContext) {
