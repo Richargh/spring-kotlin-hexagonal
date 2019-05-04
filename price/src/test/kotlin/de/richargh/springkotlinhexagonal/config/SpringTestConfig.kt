@@ -4,6 +4,7 @@ import de.richargh.springkotlinhexagonal.Application
 import de.richargh.springkotlinhexagonal.NoCassandraAnnotationConfig
 import de.richargh.springkotlinhexagonal.functionalProductionConfig
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.annotation.Import
@@ -17,7 +18,23 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @ContextConfiguration(initializers = [FunctionalProductionConfigInitializer::class], classes = [TestApplicationConfiguration::class])
 @TestPropertySource(locations = ["classpath:application.properties"])
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-annotation class OurSpringTest
+annotation class SpringContextTest
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(classes = [TestApplicationConfiguration::class])
+@TestPropertySource(locations = ["classpath:application.properties"])
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+annotation class SpringRunningContextTest
+
+
+
+@ExtendWith(SpringExtension::class)
+@ContextConfiguration(initializers = [FunctionalProductionConfigInitializer::class], classes = [TestApplicationConfiguration::class])
+@TestPropertySource(locations = ["classpath:application.properties"])
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+internal annotation class SpringTest
+
+
 
 class FunctionalProductionConfigInitializer: ApplicationContextInitializer<GenericApplicationContext> {
     override fun initialize(context: GenericApplicationContext) {

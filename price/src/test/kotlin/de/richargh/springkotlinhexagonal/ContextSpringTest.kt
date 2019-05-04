@@ -1,8 +1,7 @@
 package de.richargh.springkotlinhexagonal
 
 import de.richargh.springkotlinhexagonal.config.FunctionalMockConfigInitializer
-import de.richargh.springkotlinhexagonal.config.OurSpringTest
-import de.richargh.springkotlinhexagonal.config.functionalTestOverridingMockConfig
+import de.richargh.springkotlinhexagonal.config.SpringContextTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -16,7 +15,7 @@ import org.springframework.test.context.TestPropertySource
 
 class ContextSpringTest {
 
-    @OurSpringTest
+    @SpringContextTest
     @Nested
     inner class Default(@Autowired val applicationContext: ApplicationContext) {
 
@@ -48,7 +47,7 @@ class ContextSpringTest {
     }
 
     @TestPropertySource(locations = ["classpath:application-dev.properties"])
-    @OurSpringTest
+    @SpringContextTest
     @Nested
     inner class Dev(@Autowired val applicationContext: ApplicationContext) {
 
@@ -67,7 +66,7 @@ class ContextSpringTest {
         }
     }
 
-    @OurSpringTest
+    @SpringContextTest
     @ContextConfiguration(initializers = [FunctionalMockConfigInitializer::class])
     @Nested
     inner class Mock(@Autowired val applicationContext: ApplicationContext) {
