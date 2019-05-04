@@ -1,6 +1,7 @@
 package de.richargh.springkotlinhexagonal
 
 import de.richargh.springkotlinhexagonal.config.functionalTestOverridingMockConfig
+import de.richargh.springkotlinhexagonal.domain.Greeter
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.assertj.core.api.Assertions.assertThat

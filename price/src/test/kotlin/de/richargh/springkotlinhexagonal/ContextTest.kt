@@ -1,6 +1,8 @@
 package de.richargh.springkotlinhexagonal
 
 import de.richargh.springkotlinhexagonal.config.functionalTestOverridingMockConfig
+import de.richargh.springkotlinhexagonal.domain.Greeter
+import de.richargh.springkotlinhexagonal.domain.Replier
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test

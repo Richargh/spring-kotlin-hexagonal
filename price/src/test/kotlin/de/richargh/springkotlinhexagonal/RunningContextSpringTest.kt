@@ -1,6 +1,7 @@
 package de.richargh.springkotlinhexagonal
 
 import de.richargh.springkotlinhexagonal.config.*
+import de.richargh.springkotlinhexagonal.domain.Greeter
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
@@ -72,7 +73,7 @@ class RunningContextSpringTest() {
 
             // Assert
             assertThat(entity.statusCode).isEqualTo(HttpStatus.OK)
-            assertThat(entity.body).contains("$name")
+            assertThat(entity.body).contains(name)
         }
     }
 }

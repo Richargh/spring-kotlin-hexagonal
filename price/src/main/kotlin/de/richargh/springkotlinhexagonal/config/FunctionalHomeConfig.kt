@@ -1,7 +1,7 @@
 package de.richargh.springkotlinhexagonal.config
 
-import de.richargh.springkotlinhexagonal.HomeController
-import de.richargh.springkotlinhexagonal.Replier
+import de.richargh.springkotlinhexagonal.web.HomeController
+import de.richargh.springkotlinhexagonal.domain.Replier
 import org.springframework.context.support.beans
 
 fun functionalHomeConfig() = beans {
