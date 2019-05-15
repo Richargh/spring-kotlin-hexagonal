@@ -11,6 +11,85 @@ A collection of somewhat useful Spring and Spring Boot content. Mostly because I
 * [Functional Micro Spring](https://github.com/dsyer/spring-boot-micro-apps/blob/master/src/main/java/com/example/micro/MicroApplication.java)
 * [Spring Kotlin Functional](https://github.com/sdeleuze/spring-kotlin-functional)
 
+## Spring Beans
+
+According to the [official](https://docs.spring.io/spring-framework/docs/4.1.5.RELEASE/spring-framework-reference/html/new-in-4.0.html) [docs](https://docs.spring.io/spring/docs/5.0.x/spring-framework-reference/languages.html#kotlin-bean-definition-dsl):
+> The Spring Framework was first released in 2004; since then there have been significant major revisions: **Spring 2.0** provided XML namespaces and AspectJ support; **Spring 2.5** embraced annotation-driven configuration; **Spring 3.0** introduced a strong Java 5+ foundation across the framework codebase, and features such as the Java-based @Configuration model.
+> ... 
+> Beginning with **Spring Framework 4.0**, it is possible to define external bean configuration using a Groovy DSL. This is similar in concept to using XML bean definitions but allows for a more concise syntax. Using Groovy also allows you to easily embed bean definitions directly in your bootstrap code.
+> **Spring Framework 5** introduces a new way to register beans in a functional way using lambdas as an alternative to XML or JavaConfig (@Configuration and @Bean). In a nutshell, it makes it possible to register beans with a lambda that acts as a FactoryBean. This mechanism is very efficient as it does not require any reflection or CGLIB proxies.
+
+In code those three styles look like this:
+
+### Xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <!-- this is just an excerpt -->
+    <bean id="bookingService" class="x.y.DefaultBookingService">
+        <property name="messenger" ref="messenger" />
+    </bean>
+</beans>
+```
+
+### Annotation
+
+```java
+@Configuration
+ public class AppConfig {
+
+     @Bean
+     public MyBean myBean() {
+         // instantiate, configure and return bean ...
+     }
+ }
+```
+
+**Bootstrap**
+```java
+AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+ ctx.register(AppConfig.class);
+ ctx.refresh();
+ MyBean myBean = ctx.getBean(MyBean.class);
+ // use myBean ...
+```
+
+
+### Functional
+
+**Groovy**
+```groovy
+beans {
+	service(SharedService) {
+		message = "Hello World"
+	}
+}
+```
+
+**Java**
+```java
+GenericApplicationContext context = new GenericApplicationContext();
+    context.registerBean(Foo.class);
+    context.registerBean(Bar.class, () -> new Bar(context.getBean(Foo.class))
+);
+```
+
+**Kotlin**
+```kotlin
+val context = GenericApplicationContext().apply {
+    registerBean<Foo>()
+    registerBean { Bar(it.getBean<Foo>()) }
+}
+```
+
+More Kotlin examples can be found in the [spring framework reference](https://docs.spring.io/spring/docs/5.0.x/spring-framework-reference/languages.html#kotlin-bean-definition-dsl) and in the code examples from the beginning.
+
+
+### My verdict
+
+We can see a clear progression from xml to annotations to code dsl. We move the defintion of our injectable beans from a seperate language (xml, then annotations which have their own logic) to finally use the same syntax and semantics as our programming language. 
+
 ## Properties
 
 ### Explicit properties
