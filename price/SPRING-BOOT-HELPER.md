@@ -10,6 +10,7 @@ A collection of somewhat useful Spring and Spring Boot content. Mostly because I
 * [Functional Spring without @EnableAutoConfiguration](https://github.com/dsyer/spring-boot-micro-apps/blob/master/src/main/java/com/example/func/FuncApplication.java)
 * [Functional Micro Spring](https://github.com/dsyer/spring-boot-micro-apps/blob/master/src/main/java/com/example/micro/MicroApplication.java)
 * [Spring Kotlin Functional](https://github.com/sdeleuze/spring-kotlin-functional)
+* [Lots of Spring 5 examples](https://github.com/daggerok/spring-5-examples)
 
 ## Spring Beans
 
@@ -200,4 +201,214 @@ val context = GenericApplicationContext()
 beans.invoke(context)
 context.refresh()
 assertNotNull(context.getBean<Foo>())
+```
+
+## Routes
+
+Spring 5 from [September 2016](https://spring.io/blog/2016/09/22/new-in-spring-5-functional-web-framework) supports the definition of functional routes likes this:
+
+```java
+RouterFunction<?> route = route(GET("/person/{id}"),
+  request -> {
+    Mono<Person> person = Mono.justOrEmpty(request.pathVariable("id"))
+      .map(Integer::valueOf)
+      .then(repository::getPerson);
+    return Response.ok().body(fromPublisher(person, Person.class));
+  })
+  .and(route(GET("/person"),
+    request -> {
+      Flux<Person> people = repository.allPeople();
+      return Response.ok().body(fromPublisher(people, Person.class));
+    }))
+  .and(route(POST("/person"),
+    request -> {
+      Mono<Person> person = request.body(toMono(Person.class));
+      return Response.ok().build(repository.savePerson(person));
+    }));
+```
+
+**Start**
+```java
+HttpHandler httpHandler = RouterFunctions.toHttpHandler(route);
+ReactorHttpHandlerAdapter adapter =
+  new ReactorHttpHandlerAdapter(httpHandler);
+HttpServer server = HttpServer.create("localhost", 8080);
+server.startAndAwait(adapter);
+```
+
+**Beans**
+```java
+@Configuration
+public class FunctionalRouter {
+
+  @Bean
+  public RouterFunction<ServerResponse> routes() {
+    return RouterFunctions.route()
+                          .POST("/fn", request -> ServerResponse.ok().body("Functional hello!"))
+                          .GET("/**", request -> ServerResponse.ok().body("_self: " + request.path()))
+                          .filter((request, next) -> {
+                            var response = next.handle(request);
+                            var headers = HttpHeaders.writableHttpHeaders(response.headers());
+                            headers.add("X-FUNCTIONAL", "It's fucking awesome!");
+                            return response;
+                          })
+                          .build();
+  }
+}
+```
+
+Or in [Kotlin](https://github.com/daggerok/spring-5-examples/blob/master/awesome-kotlin/src/main/kotlin/com/github/daggerok/AwesomeKotlinApplication.kt)
+
+```kotlin
+val v1: RouterFunctionDsl.() -> Unit = {
+  GET("/hello") { helloApi }
+  GET("/**", defaultFallback)
+}
+
+val v2: RouterFunctionDsl.() -> Unit = {
+  GET("/2hello") { helloApi }
+  GET("/2**", defaultFallback)
+}
+
+@Configuration
+class RouterFunctionConfig {
+  @Bean fun routes() = router {
+    resources("/**", ClassPathResource("/static/"))
+
+    contentType(TEXT_HTML)
+    GET("/", spa)
+
+    contentType(APPLICATION_JSON_UTF8)
+    (accept(APPLICATION_JSON).and("/api")).nest {
+      "/v1".nest(v1)
+      "/v2".nest(v2)
+    }
+    GET("/**", defaultFallback)
+  }
+}
+```
+
+## Transactions
+
+As written [here](https://github.com/daggerok/functional-spring-boot-transaction) you can use the Spring `TransactionTemplate` to execute commands in a transaction.
+
+```java
+// @Autowired private PlatformTransactionManager transactionManager;
+
+TransactionTemplate template = new TransactionTemplate(transactionManager);
+transactionTemplate.execute(status -> {
+  Message message = Message.of(msg);
+  em.persist(message);
+  return message;
+});
+```
+
+## Getting Rid of Autoconfiguration 
+
+### Without Spring Fu
+
+Interestingly the various [Spring Boot Starters (Source Code)](https://github.com/spring-projects/spring-boot/tree/master/spring-boot-project/spring-boot-starters) projects only include a single pom. The [web starter pom](https://github.com/spring-projects/spring-boot/blob/master/spring-boot-project/spring-boot-starters/spring-boot-starter-web/pom.xml) for example has dependencies on things such as spring-boot-starter-tomcat, spring-webmvc, spring-web... 
+
+So if you include `spring-boot-starter-web` in your project pom it only ensures that the right depenendencies are in your classpath. The magic happens elsewhere.
+
+The [Spring Boot Project (Source Code)](https://github.com/spring-projects/spring-boot/tree/master/spring-boot-project) is one repository on github with multiple parts. The starters we have already talked about. The other intersting part is the autoconfigure folder. If we take a look at the [MongoAutoConfiguration](https://github.com/spring-projects/spring-boot/blob/master/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/mongo/MongoAutoConfiguration.java) we can see that it is a `@Configuration` with various `Bean` definitions that are in turn guarded by various `@Conditionals`. 
+
+We can theoretically replicate (I haven't tested it) the mongo configuration in functional bean style by instantiating the `@Configuration` ourselves, executing the public bean methods and returning their results from inside a bean definition:
+ 
+ ```kotlin
+ beans { 
+    bean {
+        MongoAutoConfiguration().mongo(
+            ref<MongoProperties>(), 
+            ref<ObjectProvider<MongoClientOptions>>(), 
+            ref<Environment>()
+        )
+    } 
+}
+ ```
+ 
+### With Spring Fu
+
+That is similar to what the [Spring Fu](https://github.com/spring-projects/spring-fu) incubator does. It provides various Initializers like the [MongoDataInitializer](https://github.com/spring-projects/spring-fu/blob/master/autoconfigure-adapter/src/main/java/org/springframework/boot/autoconfigure/data/mongo/MongoDataInitializer.java). You can then reference these initializers when launching your app:
+
+```kotlin
+import org.springframework.boot.WebApplicationType
+import org.springframework.fu.kofu.application
+import org.springframework.fu.kofu.configuration
+import org.springframework.fu.kofu.AbstractDsl
+
+
+open class ReactiveMongoDsl(
+    private val init: ReactiveMongoDsl.() -> Unit
+) : AbstractDsl() {
+
+	private val properties = MongoProperties()
+
+	override fun initialize(context: GenericApplicationContext) {
+		super.initialize(context)
+		init()
+		MongoDataInitializer(properties).initialize(context)
+		MongoReactiveDataInitializer(properties).initialize(context)
+		MongoReactiveInitializer(properties, embedded).initialize(context)
+    }
+}
+
+fun ConfigurationDsl.reactiveMongodb(dsl: ReactiveMongoDsl.() -> Unit = {}) {
+	ReactiveMongoDsl(dsl).initialize(context)
+}
+
+
+val dataConfig = configuration {
+	beans {
+		bean<UserRepository>()
+	}
+	listener<ApplicationReadyEvent> {
+		ref<UserRepository>().init()
+	}
+	reactiveMongodb {
+		embedded()
+	}
+}
+
+val app = application(WebApplicationType.REACTIVE) {
+	configurationProperties<SampleProperties>("sample")
+	enable(dataConfig)
+	enable(webConfig)
+}
+
+fun main() {
+	app.run()
+}
+```
+
+### Other
+
+Another way is to figure out what bean defintions Spring needs at startup and register them by hand. This is similar to the first solution but we don't depend on the autoconfiguration classes. We can take inspiration from what they do though. The [micro spring example](https://github.com/dsyer/spring-boot-micro-apps/blob/master/src/main/java/com/example/micro/MicroApplication.java) from earlier includes this code:
+
+```java
+public class MicroApplication {
+
+	public static void main(String[] args) throws Exception {
+		long t0 = System.currentTimeMillis();
+		GenericApplicationContext context = new MicroApplication().run();
+		ApplicationBuilder.start(context, b -> {
+			System.err.println(
+					"Started HttpServer: " + (System.currentTimeMillis() - t0) + "ms");
+		});
+	}
+
+	public GenericApplicationContext run() {
+		GenericApplicationContext context = new GenericApplicationContext();
+		context.registerBean(RouterFunction.class,
+				() -> RouterFunctions
+						.route(GET("/"),
+								request -> ok().body(Mono.just("Hello"), String.class)));
+		
+		context.registerBean(DefaultErrorWebExceptionHandler.class,
+				() -> errorHandler(context));
+		context.registerBean("webHandler", HttpHandler.class, () -> httpHandler(context));
+		context.refresh();
+		return context;
+    }
+}
 ```
